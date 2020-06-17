@@ -1,0 +1,34 @@
+version: "3"
+services:
+    idm:
+        image: flowable/flowable-idm
+        container_name: idm
+        environment:
+            SERVER_PORT: 8380
+        ports:
+            - 8380:8380
+
+    task:
+        image: flowable/flowable-task
+        container_name: task
+        depends_on:
+            - idm
+        environment:
+            FLOWABLE_COMMON_APP_IDM-URL: http://idm:8380/flowable-idm
+            FLOWABLE_COMMON_APP_IDM-REDIRECT-URL: http://localhost:8380/flowable-idm
+        ports:
+            - 8399:8399
+
+    modeler:
+        image: flowable/flowable-modeler
+        container_name: modeler
+        depends_on:
+            - idm
+            - task
+        environment:
+            SERVER_PORT: 8388
+            FLOWABLE_COMMON_APP_IDM-URL: http://idm:8380/flowable-idm
+            FLOWABLE_COMMON_APP_IDM-REDIRECT-URL: http://localhost:8380/flowable-idm
+            FLOWABLE_MODELER_APP_DEPLOYMENT-API-URL: http://task:8399/flowable-task/app-api
+        ports:
+            - 8388:8388
